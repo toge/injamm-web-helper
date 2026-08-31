@@ -1,0 +1,17 @@
+{
+  "default-registry": {
+    "kind": "git",
+    "baseline": "cd61e1e26a038e82d6550a3ebbe0fbbfe7da78e3",
+    "repository": "https://github.com/microsoft/vcpkg"
+  },
+  "registries": [
+    {
+      "kind": "git",
+      "baseline": "3a2c7f3abcab69542b48f7675e724902c72d80cf",
+      "repository": "https://github.com/toge/my-vcpkg-ports",
+      "packages": [
+        "injamm"
+      ]
+    }
+  ]
+}

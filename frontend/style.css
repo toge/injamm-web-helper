@@ -1,0 +1,117 @@
+/* injamm Web Helper スタイルシート */
+/* ライト/ダークテーマは CSS 変数で一括管理し、[data-theme] 属性で切り替える */
+
+*{box-sizing:border-box;margin:0;padding:0}
+
+/* ===== カラーパレット（ライト） ===== */
+:root{
+  --bg:#f8fafc;           /* ページ背景 */
+  --surface:#fff;         /* パネル・ヘッダ等の表面色 */
+  --text:#1e293b;         /* 主テキスト色 */
+  --muted:#64748b;        /* 補助テキスト・ラベル色 */
+  --border:#e2e8f0;       /* 枠線色 */
+  --input-bg:#fff;        /* 入力欄背景 */
+  --input-border:#cbd5e1; /* 入力欄枠線 */
+  --pre-bg:#0f172a;       /* <pre> 背景（常にダーク寄りで可読性確保） */
+  --pre-text:#e2e8f0;     /* <pre> 文字色 */
+  --btn-bg:#2563eb;       /* プライマリボタン背景 */
+  color-scheme:light;     /* ブラウザのフォーム部品もライトに */
+}
+/* ===== カラーパレット（ダーク） ===== */
+[data-theme="dark"]{
+  --bg:#0f172a;           /* ページ背景（ダーク） */
+  --surface:#1e293b;      /* パネル背景 */
+  --text:#e2e8f0;         /* 主テキスト */
+  --muted:#94a3b8;        /* 補助テキスト */
+  --border:#334155;       /* 枠線 */
+  --input-bg:#1e293b;     /* 入力欄背景 */
+  --input-border:#475569; /* 入力欄枠線 */
+  --pre-bg:#020617;       /* <pre> 背景（より深いダーク） */
+  --pre-text:#e2e8f0;     /* <pre> 文字色 */
+  color-scheme:dark;      /* ブラウザ部品もダークに */
+}
+
+/* ===== ベースレイアウト ===== */
+body{
+  font-family:system-ui,sans-serif;
+  background:var(--bg);
+  color:var(--text);
+  transition:background .2s,color .2s; /* テーマ切替時のフェード */
+}
+header{
+  padding:12px 16px;
+  background:var(--surface);
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+  transition:background .2s,border-color .2s;
+}
+h1{font-size:18px;color:var(--text)}
+
+/* ===== テーマ切り替えボタン ===== */
+#theme-toggle{
+  display:inline-flex;align-items:center;justify-content:center;
+  width:36px;height:36px;
+  border-radius:8px;
+  border:1px solid var(--border);
+  background:var(--surface);
+  color:var(--text);
+  cursor:pointer;flex-shrink:0;
+  transition:background .2s,border-color .2s,color .2s;
+}
+#theme-toggle:hover{filter:brightness(1.05)}
+#theme-toggle svg{width:18px;height:18px}
+/* アイコンの排他表示: ライトは月、ダークは太陽 */
+.icon-sun{display:none}
+.icon-moon{display:block}
+[data-theme="dark"] .icon-sun{display:block}
+[data-theme="dark"] .icon-moon{display:none}
+
+/* ===== コンテナ・パネル ===== */
+.container{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:12px}
+.panel{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:8px;padding:12px;
+  transition:background .2s,border-color .2s;
+}
+.panel h3{color:var(--text)}
+.panel label{color:var(--muted);font-size:13px}
+
+/* ===== エディタ・入力欄 ===== */
+#editor{border:1px solid var(--border);min-height:200px;overflow:hidden;border-radius:6px}
+#typeName{background:var(--input-bg);color:var(--text);border:1px solid var(--input-border)}
+.actions{display:flex;gap:8px;margin:8px 0}
+button{
+  padding:6px 12px;border-radius:6px;
+  border:1px solid var(--input-border);
+  background:var(--btn-bg);color:#fff;cursor:pointer;
+}
+button:disabled{opacity:.5}
+
+/* ===== 出力領域 ===== */
+pre{
+  background:var(--pre-bg);color:var(--pre-text);
+  padding:10px;border-radius:6px;overflow:auto;max-height:300px;
+  white-space:pre-wrap;word-break:break-all;
+  border:1px solid var(--border);
+}
+.cpp-viewer{border:1px solid var(--border);border-radius:6px;overflow:hidden;max-height:300px;background:var(--surface)}
+.cpp-viewer .cm-editor{max-height:300px}
+.cpp-viewer .cm-content{font-size:13px}
+#editor .cm-editor{background:var(--surface)}
+
+/* ===== エラー・ハイライト ===== */
+#error-panel{color:#ef4444;min-height:20px;white-space:pre-wrap}
+[data-theme="dark"] #error-panel{color:#f87171}
+/* Mustache ハイライト色（ライト/ダークで調整） */
+.cm-triple{color:#a855f7;font-weight:600} /* {{{raw}}} */
+.cm-double{color:#2563eb}                 /* {{var}} */
+[data-theme="dark"] .cm-double{color:#60a5fa}
+.cm-section{color:#ea580c;font-weight:600} /* {{#section}} */
+[data-theme="dark"] .cm-section{color:#fb923c}
+.cm-filter{color:#16a34a}                 /* |filter */
+[data-theme="dark"] .cm-filter{color:#4ade80}
+.cm-error-underline{text-decoration:wavy underline red;text-decoration-skip-ink:none}
+
+/* ===== レスポンシブ ===== */
+@media(max-width:700px){.container{grid-template-columns:1fr}}

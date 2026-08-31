@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<!-- injamm Web Helper: ブラウザ上で Mustache テンプレートをコンパイル・逆アセンブル・コード生成する静的サイト -->
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>injamm Web Helper</title>
+  <!-- テーマ初期化: localStorage と prefers-color-scheme から data-theme を即時設定（FOUC 防止） -->
+  <script>(function(){try{var s=localStorage.getItem('theme');var m=window.matchMedia('(prefers-color-scheme: dark)').matches;var t=s||(m?'dark':'light');document.documentElement.setAttribute('data-theme',t);}catch(e){}})();</script>
+  <script type="module" crossorigin src="./assets/index-Dd9BCngs.js"></script>
+  <link rel="stylesheet" crossorigin href="./assets/index-CPsJu5rb.css">
+</head>
+<body>
+  <!-- ヘッダー: タイトルとライト/ダーク切り替えボタンを横並びで配置 -->
+  <header>
+    <h1>injamm Web Helper — stateless WASM</h1>
+    <!-- テーマ切り替えボタン: 太陽（ライトへ）/月（ダークへ）のアイコンを CSS で排他表示 -->
+    <button id="theme-toggle" aria-label="テーマ切替" title="テーマ切替（ライト/ダーク）">
+      <!-- 太陽アイコン: ダーク時に表示 -->
+      <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"></path></svg>
+      <!-- 月アイコン: ライト時に表示 -->
+      <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+    </button>
+  </header>
+  <!-- メインコンテンツ: 2カラムレイアウト（テンプレート入力 / 出力） -->
+  <div class="container">
+    <!-- 左パネル: テンプレート入力とコンパイル操作 -->
+    <div class="panel">
+      <h3>Template</h3>
+      <div id="editor"></div><!-- CodeMirror エディタがマウントされる領域 -->
+      <div class="actions">
+        <!-- 型名入力: コード生成時の C++ 構造体名を指定 -->
+        <input id="typeName" placeholder="Type name (MyData)" value="MyData" style="flex:1;padding:6px;border-radius:6px" />
+        <button id="btn-compile">Compile</button><!-- WASM による検証・コンパイルを実行 -->
+      </div>
+      <div id="error-panel"></div><!-- 検証エラーや成功メッセージを表示 -->
+    </div>
+    <!-- 右パネル: コンパイル結果の表示とダウンロード -->
+    <div class="panel">
+      <h3>Outputs</h3>
+      <label>Disassembly</label><pre id="out-disasm">(empty)</pre><!-- バイトコードの逆アセンブル -->
+      <div class="actions">
+        <button id="btn-dl-bc" disabled>Download template.bc</button><!-- バイナリのダウンロード -->
+        <button id="btn-dl-hpp" disabled>Download render.hpp</button><!-- 生成ヘッダのダウンロード -->
+      </div>
+      <label>render.hpp (codegen)</label><div id="out-codegen" class="cpp-viewer"></div><!-- 生成された C++ ヘッダ -->
+      <label>Struct example (C++)</label><div id="out-struct" class="cpp-viewer"></div><!-- var_ref から推論した構造体例 -->
+    </div>
+  </div>
+  <!-- エントリポイント: Vite によりバンドルされるモジュール -->
+</body>
+</html>
