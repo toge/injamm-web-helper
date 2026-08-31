@@ -6,7 +6,7 @@
 ブラウザだけで [injamm](https://github.com/toge/injamm) テンプレートの検証・コンパイル・コード生成ができる静的 Web ツールです。
 injammをWASMでコンパイルしたものがブラウザ内で動作するため、完全にクライアントサイドでテンプレートの検証・コンパイル・コード生成が可能です。
 
-> Live Demo: `https://toge.github.io/injamm-web-helper/`
+[Live Demo](https://toge.github.io/injamm-web-helper/)
 
 ## 特長
 
