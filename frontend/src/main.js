@@ -7,7 +7,7 @@
 import { createEditor, setError, errorRangeFromPos } from "./editor.js";
 import { validate, compileBytes, compileDisasm, codegen, analyzeJson, initWasm } from "./wasm.js";
 import { generateStruct } from "./structGen.js";
-import { EditorState, Compartment } from "@codemirror/state";
+import { EditorState, Compartment, StateEffect } from "@codemirror/state";
 import { EditorView } from "@codemirror/view";
 import { cpp } from "@codemirror/lang-cpp";
 import { oneDark } from "@codemirror/theme-one-dark";
@@ -23,9 +23,69 @@ const btnCompile = document.getElementById("btn-compile"); // コンパイルボ
 const btnDlBc = document.getElementById("btn-dl-bc"); // template.bc ダウンロードボタン
 const btnDlHpp = document.getElementById("btn-dl-hpp"); // render.hpp ダウンロードボタン
 const typeNameInput = document.getElementById("typeName"); // 型名入力欄
+const btnShare = document.getElementById("btn-share"); // 共有リンクコピーボタン
 
 // テンプレートエディタの生成（初期サンプル付き）
 const view = createEditor(editorParent, "Hello {{name}}!\n{{#users}}{{name|upper}} {{/users}}");
+
+// ----- クエリパラメータから初期値を反映 -----
+// 例: ?template=Hello%20{{name}}&typeName=MyData  または ?tmpl=...&type=...&class=...
+// template/tmpl: テンプレート文字列、typeName/type/className/class: C++ 構造体名
+function getQueryParam(params, ...keys) {
+  for (const k of keys) if (params.has(k)) return params.get(k);
+  return null;
+}
+const _qParams = typeof location !== "undefined" ? new URLSearchParams(location.search) : new URLSearchParams();
+const _initialTmpl = getQueryParam(_qParams, "template", "tmpl");
+const _initialType = getQueryParam(_qParams, "typeName", "type", "className", "class");
+if (_initialTmpl !== null) view.dispatch({ changes: { from: 0, to: view.state.doc.length, insert: _initialTmpl } });
+if (_initialType !== null) typeNameInput.value = _initialType;
+const _compileParam = getQueryParam(_qParams, "compile", "autocompile", "auto");
+// template 指定時はデフォルトで自動コンパイル（compile=0/false で抑制）
+const _shouldAutoCompile = _initialTmpl !== null && _compileParam !== "0" && _compileParam !== "false";
+
+// ----- URL 双方向同期 & 共有リンク -----
+// 現在のエディタ内容と型名から共有URLを構築する（canonical: template + typeName）
+function buildShareUrl() {
+  const url = new URL(location.href);
+  const tmpl = view.state.doc.toString();
+  const tName = typeNameInput.value.trim();
+  if (tmpl) url.searchParams.set("template", tmpl);
+  else url.searchParams.delete("template");
+  url.searchParams.delete("tmpl");
+  if (tName && tName !== "MyData") url.searchParams.set("typeName", tName);
+  else url.searchParams.delete("typeName");
+  url.searchParams.delete("type");
+  url.searchParams.delete("class");
+  url.searchParams.delete("className");
+  url.searchParams.delete("compile");
+  url.searchParams.delete("autocompile");
+  url.searchParams.delete("auto");
+  return url.toString();
+}
+// history.replaceState で URL を更新（リロードなし）
+function syncUrl() {
+  if (typeof history === "undefined" || typeof location === "undefined") return;
+  try {
+    const newUrl = buildShareUrl();
+    if (newUrl !== location.href) history.replaceState(null, "", newUrl);
+  } catch {}
+}
+let _syncTimer = null;
+function scheduleSync() {
+  clearTimeout(_syncTimer);
+  _syncTimer = setTimeout(syncUrl, 350);
+}
+// typeName の入力で URL を同期（即時 debounce）
+typeNameInput.addEventListener("input", scheduleSync);
+// エディタ内容の変更で URL を同期（CodeMirror updateListener を動的に追加）
+try {
+  view.dispatch({ effects: StateEffect.appendConfig.of(EditorView.updateListener.of((u) => { if (u.docChanged) scheduleSync(); })) });
+} catch {
+  // フォールバック: DOM イベントで代替（appendConfig 非対応環境向け）
+  view.dom?.addEventListener("keyup", scheduleSync);
+  view.dom?.addEventListener("paste", () => setTimeout(scheduleSync, 0));
+}
 
 /**
  * @brief 読み取り専用の C++ ビューアを生成する
@@ -202,5 +262,28 @@ async function onCompile() {
 // コンパイルボタンのイベント登録
 btnCompile.addEventListener("click", onCompile);
 
+// 共有リンクコピー（現在の URL を最新状態に同期してからコピー）
+btnShare?.addEventListener("click", async () => {
+  // debounce 中の変更を即時反映
+  clearTimeout(_syncTimer);
+  syncUrl();
+  const url = buildShareUrl();
+  const origLabel = btnShare.textContent;
+  try {
+    if (navigator.clipboard?.writeText) await navigator.clipboard.writeText(url);
+    else throw new Error("clipboard unavailable");
+    btnShare.textContent = "Copied!";
+    setTimeout(() => { btnShare.textContent = origLabel; }, 1500);
+  } catch {
+    // フォールバック: プロンプトで手動コピーを促す
+    window.prompt("共有リンクをコピーしてください:", url);
+  }
+});
+
 // WASM モジュールをバックグラウンドでウォームアップ（初回コンパイルの体感遅延を削減）
-initWasm().catch(() => {});
+// クエリで template が指定されていれば自動コンパイル（compile=0/false で抑制）
+if (_shouldAutoCompile) {
+  initWasm().then(() => onCompile()).catch(() => {});
+} else {
+  initWasm().catch(() => {});
+}

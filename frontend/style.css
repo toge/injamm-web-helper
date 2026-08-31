@@ -80,13 +80,15 @@ h1{font-size:18px;color:var(--text)}
 /* ===== エディタ・入力欄 ===== */
 #editor{border:1px solid var(--border);min-height:200px;overflow:hidden;border-radius:6px}
 #typeName{background:var(--input-bg);color:var(--text);border:1px solid var(--input-border)}
-.actions{display:flex;gap:8px;margin:8px 0}
+.actions{display:flex;gap:8px;margin:8px 0;flex-wrap:wrap}
 button{
   padding:6px 12px;border-radius:6px;
   border:1px solid var(--input-border);
   background:var(--btn-bg);color:#fff;cursor:pointer;
 }
 button:disabled{opacity:.5}
+#btn-share{background:var(--surface);color:var(--text);border:1px solid var(--input-border)}
+#btn-share:hover{filter:brightness(0.97)}
 
 /* ===== 出力領域 ===== */
 pre{

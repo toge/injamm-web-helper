@@ -7,8 +7,8 @@
   <title>injamm Web Helper</title>
   <!-- テーマ初期化: localStorage と prefers-color-scheme から data-theme を即時設定（FOUC 防止） -->
   <script>(function(){try{var s=localStorage.getItem('theme');var m=window.matchMedia('(prefers-color-scheme: dark)').matches;var t=s||(m?'dark':'light');document.documentElement.setAttribute('data-theme',t);}catch(e){}})();</script>
-  <script type="module" crossorigin src="./assets/index-Dd9BCngs.js"></script>
-  <link rel="stylesheet" crossorigin href="./assets/index-CPsJu5rb.css">
+  <script type="module" crossorigin src="./assets/index-B0qAYeBq.js"></script>
+  <link rel="stylesheet" crossorigin href="./assets/index-C1-DfVIK.css">
 </head>
 <body>
   <!-- ヘッダー: タイトルとライト/ダーク切り替えボタンを横並びで配置 -->
@@ -32,6 +32,7 @@
         <!-- 型名入力: コード生成時の C++ 構造体名を指定 -->
         <input id="typeName" placeholder="Type name (MyData)" value="MyData" style="flex:1;padding:6px;border-radius:6px" />
         <button id="btn-compile">Compile</button><!-- WASM による検証・コンパイルを実行 -->
+        <button id="btn-share" title="現在のテンプレートと型名をURLに反映してコピー">Copy share link</button><!-- 共有リンクをクリップボードへコピー -->
       </div>
       <div id="error-panel"></div><!-- 検証エラーや成功メッセージを表示 -->
     </div>
